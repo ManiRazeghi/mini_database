@@ -62,6 +62,28 @@ class Database:
         for row in collected:
             self.add_one_row(row)
 
+    
+    def get_filter(self, data: dict, multiple: bool = False) -> dict:
+        
+        results = []
+
+        with open(self.address, 'r') as table_csv:
+
+            for item in csv.DictReader(table_csv):
+                mark = 0
+
+                for value in data.values():
+                    if value in item.values():
+                        mark += 1
+                
+                if mark == len(data.values()):
+                    if not multiple:
+                       return item
+                    
+                    results.append(item)
+        
+        return results
+
 
 
 
