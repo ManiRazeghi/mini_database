@@ -64,7 +64,7 @@ class Database:
             self.add_one_row(row)
 
     
-    def get(self, data: dict, multiple: bool = False) -> dict:
+    def get(self, data: dict, multiple: bool = False) -> list:
         
         results = []
 
@@ -78,10 +78,10 @@ class Database:
                         mark += 1
                 
                 if mark == len(data.values()):
-                    if not multiple:
-                       return item
-                    
                     results.append(item)
+
+                    if not multiple:
+                       return results
         
         return results
     
@@ -116,14 +116,32 @@ class Database:
 
 class Connect(Database):
     
-    def __init__(self, table_name_one: str, table_name_two: str, connected_column: str) -> None:
-        self.table_name_one = table_name_one
-        self.table_name_two = table_name_two
+    def __init__(self, table_name_fount: str, table_name_related: str, connected_column: str, related_name: str) -> None:
+        self.table_name_fount = table_name_fount
+        self.table_name_related = table_name_related
         self.connected_column = connected_column
+        self.related_name = related_name
 
-        self.address_one = f'{os.getcwd()}/database/{self.table_name_one}.csv'
-        self.address_two = f'{os.getcwd()}/database/{self.table_name_two}.csv'
+        self.address_fount = f'{os.getcwd()}/database/{self.table_name_fount}.csv'
+        self.address_related = f'{os.getcwd()}/database/{self.table_name_related}.csv'
     
+    
+    def get_from(self, data_from_fount: dict, multiple: bool = False) -> list:
+        
+        results = []
+
+        with open(self.address_related, 'r') as related_table:
+
+            for item in csv.DictReader(related_table):
+
+                if item[self.related_name] == data_from_fount[self.connected_column]:
+                    results.append(item)
+
+                    if not multiple:
+                        break
+        
+        return results
+
 
 
 
