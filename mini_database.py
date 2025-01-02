@@ -114,6 +114,22 @@ class Database:
     
 
 
+class Connect(Database):
+    
+    def __init__(self, table_name_one: str, table_name_two: str, connected_column: str) -> None:
+        self.table_name_one = table_name_one
+        self.table_name_two = table_name_two
+        self.connected_column = connected_column
+
+        self.address_one = f'{os.getcwd()}/database/{self.table_name_one}.csv'
+        self.address_two = f'{os.getcwd()}/database/{self.table_name_two}.csv'
+    
+
+
+
+    
+
+
 
 
 
