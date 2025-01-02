@@ -126,7 +126,7 @@ class Connect(Database):
         self.address_related = f'{os.getcwd()}/database/{self.table_name_related}.csv'
     
     
-    def get_from(self, data_from_fount: dict, multiple: bool = False) -> list:
+    def get_from(self, data_from_fount: dict, multiple: bool = False) -> list[dict]:
         
         results = []
 
@@ -141,6 +141,20 @@ class Connect(Database):
                         break
         
         return results
+    
+
+    def get_from_columns(self, data_from_fount: dict, multiple: bool = False, columns: list[str]|list = []) -> list[dict]:
+        new_results = []
+        
+        for item in self.get_from(data_from_fount, multiple):
+            data = {}
+            for column in columns:
+                data[column] = item.get(column)
+            new_results.append(data)
+        
+        return new_results
+
+    
 
 
 
