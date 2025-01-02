@@ -3,6 +3,7 @@
 # import requirements
 import csv
 import os
+from typing import Callable
 
 
 # check that database folder is exists.
@@ -63,7 +64,7 @@ class Database:
             self.add_one_row(row)
 
     
-    def get_filter(self, data: dict, multiple: bool = False) -> dict:
+    def get(self, data: dict, multiple: bool = False) -> dict:
         
         results = []
 
@@ -83,6 +84,35 @@ class Database:
                     results.append(item)
         
         return results
+    
+
+
+    def filter_statement(self, columns: list[str], orders: list[Callable]) -> list:
+        
+        results = []
+
+        with open(self.address, 'r') as table_csv:
+
+            if len(columns) == 1:
+
+                for item in csv.DictReader(table_csv):
+                    if bool(orders[0](item[columns[0]])):
+                       results.append(item)
+
+            
+            else:
+                for item in csv.DictReader(table_csv):
+                    mark = 0
+                    for ind, column in enumerate(columns):
+                        if bool(orders[ind](item[column])):
+                            mark += 1
+                    
+                    if mark == len(columns):
+                        results.append(item)
+        
+        return results
+    
+
 
 
 
