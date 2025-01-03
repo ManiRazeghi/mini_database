@@ -20,6 +20,7 @@ class Database:
 
     
     def add_column(self, columns_data: list[str]) -> None:
+        '''This method add column in the csv file.'''
         
         if os.path.exists(self.address):
             raise FileExistsError(f'{self.address} is already exists.')
@@ -31,6 +32,7 @@ class Database:
 
 
     def add_one_row(self, row_data: list[str]) -> None:
+        '''This method add one row to csv file.'''
 
         num_id = 0
         with open(self.address, 'r+', newline= '') as table_csv:
@@ -41,7 +43,8 @@ class Database:
             csv.writer(table_csv).writerows([row_data])
 
     
-    def delete(self, column_data: dict) -> None:
+    def delete(self, row_data: dict) -> None:
+        '''This method delete one row from csv file'''
         collected = []
 
         with open(self.address, 'r') as table_csv:
@@ -49,11 +52,11 @@ class Database:
             for item in csv.DictReader(table_csv):
                 mark = 0
 
-                for value in column_data.values():
+                for value in row_data.values():
                     if value in item.values():
                         mark += 1
                 
-                if mark != len(column_data):
+                if mark != len(row_data):
                     collected.append(list(item.values())[1:])
             
             columns = list(item.keys())[1:]
@@ -65,6 +68,7 @@ class Database:
 
     
     def get(self, data: dict, multiple: bool = False) -> list:
+        '''This method get one row from csv file.'''
         
         results = []
 
@@ -88,6 +92,7 @@ class Database:
 
 
     def filter_statement(self, columns: list[str], orders: list[Callable]) -> list:
+        '''This method retun list of dicts that filter with func you gave it.'''
         
         results = []
 
@@ -127,7 +132,8 @@ class Connect(Database):
     
     
     def get_from(self, data_from_fount: dict, multiple: bool = False) -> list[dict]:
-        
+        '''This method get related data that connected to fount row you gave.'''
+
         results = []
 
         with open(self.address_related, 'r') as related_table:
@@ -144,6 +150,8 @@ class Connect(Database):
     
 
     def get_from_columns(self, data_from_fount: dict, multiple: bool = False, columns: list[str]|list = []) -> list[dict]:
+        '''This method return only related column data you gave.'''
+
         new_results = []
         
         for item in self.get_from(data_from_fount, multiple):
