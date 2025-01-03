@@ -119,7 +119,7 @@ class Database:
     
 
 
-class Connect(Database):
+class Connect:
     
     def __init__(self, table_name_fount: str, table_name_related: str, connected_column: str, related_name: str) -> None:
         self.table_name_fount = table_name_fount
@@ -131,16 +131,19 @@ class Connect(Database):
         self.address_related = f'{os.getcwd()}/database/{self.table_name_related}.csv'
     
     
-    def get_from(self, data_from_fount: dict, multiple: bool = False) -> list[dict]:
+    def get_from(self, data_from_fount: dict, multiple: bool = False, address = 'related', column = 'related') -> list[dict]:
         '''This method get related data that connected to fount row you gave.'''
 
         results = []
+        path = self.address_related if address == 'related' else self.address_fount
+        giver_column = self.related_name if column == 'related' else self.connected_column
+        fount_column = self.connected_column if column == 'related' else self.related_name
 
-        with open(self.address_related, 'r') as related_table:
+        with open(path, 'r') as related_table:
 
             for item in csv.DictReader(related_table):
 
-                if item[self.related_name] == data_from_fount[self.connected_column]:
+                if item[giver_column] == data_from_fount[fount_column]:
                     results.append(item)
 
                     if not multiple:
@@ -149,18 +152,28 @@ class Connect(Database):
         return results
     
 
-    def get_from_columns(self, data_from_fount: dict, multiple: bool = False, columns: list[str]|list = []) -> list[dict]:
+    def get_from_columns(self, data_from_fount: dict, multiple: bool = False, columns: list[str]|list = [], table: str = 'related') -> list[dict]:
         '''This method return only related column data you gave.'''
 
         new_results = []
+
+        iterable = self.get_from(data_from_fount, multiple) if table == 'related' else self.get_from(data_from_fount, multiple, 'founted', 'founted')
         
-        for item in self.get_from(data_from_fount, multiple):
+        for item in iterable:
             data = {}
             for column in columns:
                 data[column] = item.get(column)
             new_results.append(data)
         
         return new_results
+    
+
+    def get_fount(self, data_from_related: dict, multiple: bool = False) -> list:
+        return self.get_from(data_from_related, multiple, 'founted', 'founted')
+    
+
+    def get_fount_columns(self, data_from_related: dict, multiple: bool = False, columns: list[str] = []) -> list[dict]:
+        return self.get_from_columns(data_from_related, multiple, columns, 'founted')
 
     
 
