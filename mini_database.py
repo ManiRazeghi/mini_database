@@ -176,7 +176,33 @@ class Connect:
         return self.get_from_columns(data_from_related, multiple, columns, 'founted')
 
     
+    # test
+    def join_tables(self, file_name: str) -> None:
 
+        if os.path.exists((address := f'{os.getcwd()}/database/{file_name}.csv')):
+            raise FileExistsError(f'{address} is already exists.')
+        
+        with open(address, 'w', newline= '') as joined_file:
+
+            joind_columns = []
+            joind_rows = []
+
+            with open(self.address_fount, 'r') as fount_file, open(self.address_related, 'r') as related_file:
+                
+
+                for ind, item in enumerate(csv.DictReader(fount_file)):
+                    if not ind:
+                        new = list(item.keys())
+                        new.extend(list(self.get_from(item)[0])[1:])
+                        joind_columns.append(new)
+                    joind_rows.append([*list(item.values()), *list(self.get_from(item)[0].values())])
+                
+                file = csv.writer(joined_file)
+                file.writerow(joind_columns[0])
+
+                for item in joind_rows:
+                    file.writerows([item])
+    
 
 
 
