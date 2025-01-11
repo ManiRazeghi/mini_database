@@ -67,7 +67,7 @@ class Database:
             self.add_one_row(row)
 
     
-    def get(self, data: dict, multiple: bool = False) -> list:
+    def get(self, data: dict, multiple: bool = False) -> list[dict]:
         '''This method get one row from csv file.'''
         
         results = []
@@ -116,6 +116,54 @@ class Database:
                         results.append(item)
         
         return results
+    
+
+    def count_row(self) -> int:
+        row_number = -1
+        with open(self.address, 'r') as csv_file:
+            for _ in csv.reader(csv_file):
+                row_number += 1
+        
+        return row_number
+    
+
+    def sum_column(self, field_name: str) -> float:
+        total_number = 0
+        with open(self.address, 'r') as csv_file:
+            for item in csv.DictReader(csv_file):
+                total_number += float(item.get(field_name))
+        
+        return total_number
+    
+
+    def average_filed(self, field_name: str) -> float:
+        return self.sum_column(field_name) / self.count_row()
+    
+
+    def min_field(self, field_name: str, _order= 'min') -> float:
+        number = self.average_filed(field_name)
+
+        with open(self.address, 'r') as csv_file:
+
+            for item in csv.DictReader(csv_file):
+                
+                if _order == 'min':
+                   if float(item.get(field_name)) < number:
+                      number = float(item.get(field_name))
+                
+                elif _order == 'max':
+                    if float(item.get(field_name)) > number:
+                      number = float(item.get(field_name))
+                
+        return number
+    
+
+    def max_field(self, field_name: str) -> float:
+        return self.min_field(field_name, 'max')
+
+
+
+
     
 
 
@@ -176,7 +224,6 @@ class Connect:
         return self.get_from_columns(data_from_related, multiple, columns, 'founted')
 
     
-    # test
     def join_tables(self, file_name: str) -> None:
 
         if os.path.exists((address := f'{os.getcwd()}/database/{file_name}.csv')):
@@ -202,6 +249,10 @@ class Connect:
 
                 for item in joind_rows:
                     file.writerows([item])
+    
+
+
+
     
 
 
