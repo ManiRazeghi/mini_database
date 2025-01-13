@@ -26,16 +26,13 @@ class OneFile:
 
     
     def add_column(self, columns_data: list[str]) -> None:
-        '''This method create csv file and add column in the csv file.
-           After use of this method, you should remove this method or you
-           will get "FileExistsError" Exception.'''
+        '''This method create csv file and add column in the csv file.'''
         
-        if os.path.exists(self.address):
-            raise FileExistsError(f'{self.address} is already exists.')
+        if not os.path.exists(self.address):
 
-        with open(self.address, 'w', newline= '') as table_csv:
-            columns_data.insert(0, 'id')
-            csv.writer(table_csv).writerow(columns_data)
+            with open(self.address, 'w', newline= '') as table_csv:
+                columns_data.insert(0, 'id')
+                csv.writer(table_csv).writerow(columns_data)
         
 
 
