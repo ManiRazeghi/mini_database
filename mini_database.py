@@ -12,15 +12,23 @@ if not os.path.exists(f'{os.getcwd()}/database'):
 
 
 
-class Database:
+class OneFile:
+    '''This class Can create csv file and with its methodes, you can manage the one csv file.'''
+    
 
     def __init__(self, table_name: str) -> None:
+        '''This magic method save your table name and current address of its csv form in "database" directory
+
+        -> table = OneFile('User') -> give your table name(for example my table will be User[string type] as csv file)'''
+
         self.table_name = table_name
         self.address = f'{os.getcwd()}/database/{self.table_name}.csv'
 
     
     def add_column(self, columns_data: list[str]) -> None:
-        '''This method add column in the csv file.'''
+        '''This method create csv file and add column in the csv file.
+           After use of this method, you should remove this method or you
+           will get "FileExistsError" Exception.'''
         
         if os.path.exists(self.address):
             raise FileExistsError(f'{self.address} is already exists.')
@@ -45,6 +53,7 @@ class Database:
     
     def delete(self, row_data: dict) -> None:
         '''This method delete one row from csv file'''
+
         collected = []
 
         with open(self.address, 'r') as table_csv:
@@ -68,7 +77,7 @@ class Database:
 
     
     def get(self, data: dict, multiple: bool = False) -> list[dict]:
-        '''This method get one row from csv file.'''
+        '''This method get one(or more if you set multiple True) row from csv file.'''
         
         results = []
 
@@ -119,6 +128,8 @@ class Database:
     
 
     def count_row(self) -> int:
+        '''This method count total of your csv file rows(column won't counted)'''
+
         row_number = -1
         with open(self.address, 'r') as csv_file:
             for _ in csv.reader(csv_file):
@@ -128,6 +139,8 @@ class Database:
     
 
     def sum_column(self, field_name: str) -> float:
+        '''This method return the total amount of a special column that contains float or int numbers'''
+
         total_number = 0
         with open(self.address, 'r') as csv_file:
             for item in csv.DictReader(csv_file):
@@ -136,12 +149,16 @@ class Database:
         return total_number
     
 
-    def average_filed(self, field_name: str) -> float:
+    def median_column(self, field_name: str) -> float:
+        '''This method returns the median of a special column that contains float or int numbers'''
+
         return self.sum_column(field_name) / self.count_row()
     
 
-    def min_field(self, field_name: str, _order= 'min') -> float:
-        number = self.average_filed(field_name)
+    def min_column(self, field_name: str, _order= 'min') -> float:
+        '''This method returns the minimum int or float number of a special column'''
+
+        number = self.median_column(field_name)
 
         with open(self.address, 'r') as csv_file:
 
@@ -158,18 +175,23 @@ class Database:
         return number
     
 
-    def max_field(self, field_name: str) -> float:
-        return self.min_field(field_name, 'max')
+    def max_column(self, field_name: str) -> float:
+        '''This method returns the maximum int or float number of a special column'''
+
+        return self.min_column(field_name, 'max')
 
 
 
 
     
-
-
 class Connect:
+    '''This class under the two csv files that contains data witch make these relatable for each other'''
+
     
     def __init__(self, table_name_fount: str, table_name_related: str, connected_column: str, related_name: str) -> None:
+        '''merged_table = Connect('User', 'Meassage', 'id', 'user_id')
+           -> this object know that "id" from User table used in Message table as "user_id" '''
+
         self.table_name_fount = table_name_fount
         self.table_name_related = table_name_related
         self.connected_column = connected_column
@@ -179,13 +201,13 @@ class Connect:
         self.address_related = f'{os.getcwd()}/database/{self.table_name_related}.csv'
     
     
-    def get_from(self, data_from_fount: dict, multiple: bool = False, address = 'related', column = 'related') -> list[dict]:
+    def get_from_related(self, data_from_fount: dict, multiple: bool = False, _address = 'related', _column = 'related') -> list[dict]:
         '''This method get related data that connected to fount row you gave.'''
 
         results = []
-        path = self.address_related if address == 'related' else self.address_fount
-        giver_column = self.related_name if column == 'related' else self.connected_column
-        fount_column = self.connected_column if column == 'related' else self.related_name
+        path = self.address_related if _address == 'related' else self.address_fount
+        giver_column = self.related_name if _column == 'related' else self.connected_column
+        fount_column = self.connected_column if _column == 'related' else self.related_name
 
         with open(path, 'r') as related_table:
 
@@ -200,12 +222,12 @@ class Connect:
         return results
     
 
-    def get_from_columns(self, data_from_fount: dict, multiple: bool = False, columns: list[str]|list = [], table: str = 'related') -> list[dict]:
+    def get_from_related_filter(self, data_from_fount: dict, multiple: bool = False, columns: list[str]|list = [], _table: str = 'related') -> list[dict]:
         '''This method return only related column data you gave.'''
 
         new_results = []
 
-        iterable = self.get_from(data_from_fount, multiple) if table == 'related' else self.get_from(data_from_fount, multiple, 'founted', 'founted')
+        iterable = self.get_from_related(data_from_fount, multiple) if _table == 'related' else self.get_from_related(data_from_fount, multiple, 'founted', 'founted')
         
         for item in iterable:
             data = {}
@@ -216,15 +238,20 @@ class Connect:
         return new_results
     
 
-    def get_fount(self, data_from_related: dict, multiple: bool = False) -> list:
-        return self.get_from(data_from_related, multiple, 'founted', 'founted')
+    def get_from_fount(self, data_from_related: dict, multiple: bool = False) -> list:
+        '''This method get data from fount table that realated to data you gave from related table'''
+
+        return self.get_from_related(data_from_related, multiple, 'founted', 'founted')
     
 
-    def get_fount_columns(self, data_from_related: dict, multiple: bool = False, columns: list[str] = []) -> list[dict]:
-        return self.get_from_columns(data_from_related, multiple, columns, 'founted')
+    def get_from_fount_filter(self, data_from_related: dict, multiple: bool = False, columns: list[str] = []) -> list[dict]:
+        '''This method return only fount column data you gave.'''
+
+        return self.get_from_related_filter(data_from_related, multiple, columns, 'founted')
 
     
     def join_tables(self, file_name: str) -> None:
+        '''This method create a new csv file of merging of fount and related csv file'''
 
         if os.path.exists((address := f'{os.getcwd()}/database/{file_name}.csv')):
             raise FileExistsError(f'{address} is already exists.')
