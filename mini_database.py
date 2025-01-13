@@ -39,12 +39,19 @@ class OneFile:
         
 
 
-    def add_one_row(self, row_data: list[str]) -> None:
+    def add_one_row(self, row_data: list[str], uniq_columns: list[str] = []) -> None:
         '''This method add one row to csv file.'''
 
         num_id = 0
         with open(self.address, 'r+', newline= '') as table_csv:
-            for _ in csv.reader(table_csv):
+            for item in csv.DictReader(table_csv):
+
+                if uniq_columns:
+                    
+                    for col in uniq_columns:
+                        if item.get(col) == (target := row_data[list(item.keys()).index(col) - 1]):
+                            raise ValueError(f'{target} already exists in table.')
+
                 num_id += 1
 
             row_data.insert(0, num_id)
@@ -269,7 +276,7 @@ class Connect:
                         new = list(item.keys())
                         new.extend(list(self.get_from(item)[0])[1:])
                         joind_columns.append(new)
-                    joind_rows.append([*list(item.values()), *list(self.get_from(item)[0].values())])
+                    joind_rows.append([*list(item.values()), *list(self.get_from_related(item)[0].values())])
                 
                 file = csv.writer(joined_file)
                 file.writerow(joind_columns[0])
@@ -277,19 +284,3 @@ class Connect:
                 for item in joind_rows:
                     file.writerows([item])
     
-
-
-
-    
-
-
-
-    
-
-
-
-
-
-
-
-
