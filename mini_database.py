@@ -37,7 +37,9 @@ class OneFile:
 
 
     def add_one_row(self, row_data: list[str], uniq_columns: list[str] = []) -> None:
-        '''This method add one row to csv file.'''
+        '''This method add one row to csv file. 
+        if uniq_columns defind a repeated data, it will raise a 'ValueError'.
+        '''
 
         num_id = 0
         with open(self.address, 'r+', newline= '') as table_csv:
